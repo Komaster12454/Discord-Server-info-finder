@@ -14,7 +14,11 @@ export default async function handler(req, res) {
             }
         });
 
-        if (!response.ok) throw new Error('Failed to fetch server info');
+        if (!response.ok) {
+            const errorResponse = await response.json().catch(() => response.text()); // Fallback to text if JSON fails
+            console.error('Discord API Error:', errorResponse); // Log the error for debugging
+            throw new Error(errorResponse.message || 'Failed to fetch server info');
+        }
 
         const data = await response.json();
         return res.status(200).json(data);

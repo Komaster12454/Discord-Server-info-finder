@@ -6,122 +6,73 @@
     <title>Discord Server Info</title>
     <style>
         body {
-            margin: 0;
-            font-family: 'Arial', sans-serif;
-            background-color: #121212;
-            color: #00ffcc;
+            font-family: Arial, sans-serif;
+            background-color: #1e1e2f;
+            color: #ffffff;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             flex-direction: column;
-            text-align: center;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
-
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
-        }
-
-        .container {
-            background: rgba(18, 18, 18, 0.8);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
-            width: 90%;
-            max-width: 400px;
-        }
-
-        input[type="text"], input[type="submit"] {
-            width: 100%;
+        input, button {
+            margin: 10px;
             padding: 10px;
-            margin: 10px 0;
             border: none;
             border-radius: 5px;
-            font-size: 1em;
         }
-
-        input[type="text"] {
-            background-color: #222;
-            color: #00ffcc;
+        input {
+            width: 300px;
         }
-
-        input[type="submit"] {
-            background-color: #00ffcc;
-            color: #121212;
+        button {
+            background-color: #4caf50;
+            color: white;
             cursor: pointer;
-            transition: background-color 0.3s;
         }
-
-        input[type="submit"]:hover {
-            background-color: #00cc99;
+        button:hover {
+            background-color: #45a049;
         }
-
-        #result {
+        #output {
             margin-top: 20px;
-            font-size: 1em;
-            background-color: #222;
+            background-color: #282a36;
             padding: 10px;
             border-radius: 5px;
-            display: none;
-        }
-
-        #error {
-            color: red;
+            width: 300px;
         }
     </style>
 </head>
 <body>
     <h1>Discord Server Info</h1>
-    <div class="container">
-        <input type="text" id="botToken" placeholder="Enter Bot Token" />
-        <input type="text" id="serverId" placeholder="Enter Server ID" />
-        <input type="submit" id="submit" value="Get Server Info" />
-        <div id="result"></div>
-        <div id="error"></div>
-    </div>
+    <input type="text" id="botToken" placeholder="Enter Bot Token" />
+    <input type="text" id="serverId" placeholder="Enter Server ID" />
+    <button id="fetchInfo">Get Server Info</button>
+    <div id="output"></div>
 
     <script>
-        document.getElementById('submit').onclick = async function () {
+        document.getElementById('fetchInfo').addEventListener('click', async () => {
             const botToken = document.getElementById('botToken').value;
             const serverId = document.getElementById('serverId').value;
-            const resultDiv = document.getElementById('result');
-            const errorDiv = document.getElementById('error');
-
-            // Clear previous results and errors
-            resultDiv.innerText = '';
-            errorDiv.innerText = '';
-
-            if (!botToken || !serverId) {
-                errorDiv.innerText = 'Please enter both Bot Token and Server ID';
-                return;
-            }
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = ''; // Clear previous output
 
             try {
-                const response = await fetch('/api/discord', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ botToken, serverId }),
-                });
-
-                const responseText = await response.text(); // Read as text first
-                console.log(responseText); // Log the raw response
+                const response = await fetch(`/api/discord?serverId=${serverId}&botToken=${botToken}`);
 
                 if (!response.ok) {
-                    throw new Error(responseText); // Throw error with raw response
+                    throw new Error(`Error: ${response.status} ${response.statusText}`);
                 }
 
-                const data = JSON.parse(responseText); // Parse as JSON
-                resultDiv.innerText = JSON.stringify(data, null, 2);
-                resultDiv.style.display = 'block';
-                resultDiv.style.color = '#00ffcc';
+                const data = await response.json();
+                outputDiv.innerHTML = `
+                    <strong>Server Info:</strong><br>
+                    Name: ${data.name}<br>
+                    ID: ${data.id}<br>
+                    Member Count: ${data.member_count}
+                `;
             } catch (error) {
-                errorDiv.innerText = `Error: ${error.message}`;
-                errorDiv.style.display = 'block';
+                outputDiv.innerHTML = `Error: ${error.message}`;
             }
-        };
+        });
     </script>
 </body>
 </html>

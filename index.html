@@ -4,55 +4,109 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Discord Server Info</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #121212;
+            color: #00ffcc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            background: rgba(18, 18, 18, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        input[type="text"], input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        input[type="text"] {
+            background-color: #222;
+            color: #00ffcc;
+        }
+
+        input[type="submit"] {
+            background-color: #00ffcc;
+            color: #121212;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #00cc99;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 1em;
+            background-color: #222;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <h1>Discord Server Info Finder</h1>
-
-    <label for="botToken">Bot Token:</label>
-    <input type="password" id="botToken" placeholder="Bot Token">
-
-    <label for="serverId">Server ID:</label>
-    <input type="text" id="serverId" placeholder="Server ID">
-
-    <button onclick="getServerInfo()">Get Server Info</button>
-
-    <h2>Server Information</h2>
-    <p id="info">Enter details to see server information.</p>
+    <h1>Discord Server Info</h1>
+    <div class="container">
+        <input type="text" id="botToken" placeholder="Enter Bot Token" />
+        <input type="text" id="serverId" placeholder="Enter Server ID" />
+        <input type="submit" id="submit" value="Get Server Info" />
+        <div id="result"></div>
+    </div>
 
     <script>
-        async function getServerInfo() {
+        document.getElementById('submit').onclick = async function () {
             const botToken = document.getElementById('botToken').value;
             const serverId = document.getElementById('serverId').value;
-            const endpoint = 'https://your-vercel-app.vercel.app/api/discord'; // Replace with your actual deployed function URL
 
             if (!botToken || !serverId) {
-                document.getElementById('info').innerText = "Please enter both the bot token and server ID.";
+                alert('Please enter both Bot Token and Server ID');
                 return;
             }
 
-            const response = await fetch(endpoint, {
+            const response = await fetch('/api/discord', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ botToken, serverId })
+                body: JSON.stringify({ botToken, serverId }),
             });
 
+            const resultDiv = document.getElementById('result');
             if (response.ok) {
                 const data = await response.json();
-                const creationDate = new Date((BigInt(data.id) >> 22n) + 1420070400000n);
-
-                document.getElementById('info').innerText = `
-                    Server Name: ${data.name}
-                    Server ID: ${data.id}
-                    Creation Date: ${creationDate.toUTCString()}
-                    Member Count: ${data.approximate_member_count || 'N/A'}
-                    Description: ${data.description || 'No description'}
-                `;
+                resultDiv.innerText = JSON.stringify(data, null, 2);
+                resultDiv.style.display = 'block';
+                resultDiv.style.color = '#00ffcc';
             } else {
-                document.getElementById('info').innerText = "Failed to retrieve server information.";
+                const error = await response.json();
+                resultDiv.innerText = `Error: ${error.error}`;
+                resultDiv.style.display = 'block';
+                resultDiv.style.color = 'red';
             }
-        }
+        };
     </script>
 </body>
 </html>

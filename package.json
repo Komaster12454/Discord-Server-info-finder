@@ -1,15 +1,8 @@
 {
-  "name": "Discord-Server-info-finder",
-  "version": "1.0.0",
-  "lockfileVersion": 1,
-  "dependencies": {
-    "node-fetch": {
-      "version": "2.6.7",
-      "resolved": "https://registry.npmjs.org/node-fetch/-/node-fetch-2.6.7.tgz",
-      "integrity": "sha512-NL9fCsn...your hash here...",
-      "engines": {
-        "node": ">=6.0.0"
-      }
+    "name": "discord-server-info",
+    "version": "1.0.0",
+    "type": "module",
+    "dependencies": {
+        "node-fetch": "^2.6.7"
     }
-  }
 }

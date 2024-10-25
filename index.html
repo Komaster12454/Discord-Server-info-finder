@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Server Info</title>
+</head>
+<body>
+    <h1>Discord Server Info Finder</h1>
+
+    <label for="botToken">Bot Token:</label>
+    <input type="password" id="botToken" placeholder="Bot Token">
+
+    <label for="serverId">Server ID:</label>
+    <input type="text" id="serverId" placeholder="Server ID">
+
+    <button onclick="getServerInfo()">Get Server Info</button>
+
+    <h2>Server Information</h2>
+    <p id="info">Enter details to see server information.</p>
+
+    <script>
+        async function getServerInfo() {
+            const botToken = document.getElementById('botToken').value;
+            const serverId = document.getElementById('serverId').value;
+            const endpoint = 'https://your-vercel-app.vercel.app/api/discord'; // Replace with your deployed Vercel URL
+
+            if (!botToken || !serverId) {
+                document.getElementById('info').innerText = "Please enter both the bot token and server ID.";
+                return;
+            }
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ botToken, serverId })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const creationDate = new Date((BigInt(data.id) >> 22n) + 1420070400000n);
+
+                document.getElementById('info').innerText = `
+                    Server Name: ${data.name}
+                    Server ID: ${data.id}
+                    Creation Date: ${creationDate.toUTCString()}
+                    Member Count: ${data.approximate_member_count || 'N/A'}
+                    Description: ${data.description || 'No description'}
+                `;
+            } else {
+                document.getElementById('info').innerText = "Failed to retrieve server information.";
+            }
+        }
+    </script>
+</body>
+</html>

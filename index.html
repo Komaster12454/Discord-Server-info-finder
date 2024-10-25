@@ -23,7 +23,7 @@
         async function getServerInfo() {
             const botToken = document.getElementById('botToken').value;
             const serverId = document.getElementById('serverId').value;
-            const endpoint = 'https://your-vercel-app.vercel.app/api/discord'; // Replace with your deployed Vercel URL
+            const endpoint = 'https://your-vercel-app.vercel.app/api/discord'; // Replace with your actual deployed function URL
 
             if (!botToken || !serverId) {
                 document.getElementById('info').innerText = "Please enter both the bot token and server ID.";

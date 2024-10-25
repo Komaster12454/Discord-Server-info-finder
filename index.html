@@ -106,12 +106,14 @@
                     body: JSON.stringify({ botToken, serverId }),
                 });
 
+                const responseText = await response.text(); // Read as text first
+                console.log(responseText); // Log the raw response
+
                 if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error || 'Something went wrong. Please try again.');
+                    throw new Error(responseText); // Throw error with raw response
                 }
 
-                const data = await response.json();
+                const data = JSON.parse(responseText); // Parse as JSON
                 resultDiv.innerText = JSON.stringify(data, null, 2);
                 resultDiv.style.display = 'block';
                 resultDiv.style.color = '#00ffcc';

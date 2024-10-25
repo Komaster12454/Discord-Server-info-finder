@@ -65,6 +65,10 @@
             border-radius: 5px;
             display: none;
         }
+
+        #error {
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -74,37 +78,46 @@
         <input type="text" id="serverId" placeholder="Enter Server ID" />
         <input type="submit" id="submit" value="Get Server Info" />
         <div id="result"></div>
+        <div id="error"></div>
     </div>
 
     <script>
         document.getElementById('submit').onclick = async function () {
             const botToken = document.getElementById('botToken').value;
             const serverId = document.getElementById('serverId').value;
+            const resultDiv = document.getElementById('result');
+            const errorDiv = document.getElementById('error');
+
+            // Clear previous results and errors
+            resultDiv.innerText = '';
+            errorDiv.innerText = '';
 
             if (!botToken || !serverId) {
-                alert('Please enter both Bot Token and Server ID');
+                errorDiv.innerText = 'Please enter both Bot Token and Server ID';
                 return;
             }
 
-            const response = await fetch('/api/discord', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ botToken, serverId }),
-            });
+            try {
+                const response = await fetch('/api/discord', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ botToken, serverId }),
+                });
 
-            const resultDiv = document.getElementById('result');
-            if (response.ok) {
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Something went wrong. Please try again.');
+                }
+
                 const data = await response.json();
                 resultDiv.innerText = JSON.stringify(data, null, 2);
                 resultDiv.style.display = 'block';
                 resultDiv.style.color = '#00ffcc';
-            } else {
-                const error = await response.json();
-                resultDiv.innerText = `Error: ${error.error}`;
-                resultDiv.style.display = 'block';
-                resultDiv.style.color = 'red';
+            } catch (error) {
+                errorDiv.innerText = `Error: ${error.message}`;
+                errorDiv.style.display = 'block';
             }
         };
     </script>
